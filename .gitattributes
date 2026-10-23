@@ -1,0 +1,4 @@
+* text=auto eol=lf
+
+# Fixtures compared byte-for-byte must not get CRLF conversion on Windows
+test/fixtures/** -text
