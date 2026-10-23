@@ -1,6 +1,6 @@
 {
 	"name": "@comapeo/node-server",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "Minimal Node.js adapter that runs fetch-style (Request, ctx) => Response handlers on a node:http server.",
 	"type": "module",
 	"license": "MIT",
