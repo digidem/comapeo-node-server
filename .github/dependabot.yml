@@ -12,6 +12,9 @@ updates:
       # bump it together with engines.node.
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
+      # typescript-eslint's peer range stops at <6.1.0; lift when it supports TS 7
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       dev-dependencies:
         dependency-type: development
