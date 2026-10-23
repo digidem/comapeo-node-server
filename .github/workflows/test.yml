@@ -46,6 +46,8 @@ jobs:
       - uses: codecov/codecov-action@v7
         with:
           use_oidc: true
-          # Only the report: c8 leaves raw V8 JSON in coverage/tmp, which the search would also upload
+          # Without disable_search, `files` only adds to the search results, which
+          # pick up the raw V8 JSON c8 leaves in coverage/tmp
           files: ./coverage/lcov.info
+          disable_search: true
           flags: node-${{ matrix.node }},${{ runner.os }}
