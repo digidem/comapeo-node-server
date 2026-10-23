@@ -1,23 +1,23 @@
-import { toRequest } from './to-request.js'
-import { writeResponseHead } from './response-head.js'
-import {
-  connectionReset,
-  ContextFailed,
-  InvalidResponse,
-  isAdapterError,
-  ResponseSendFailed,
-} from './errors.js'
 import { drainRequest } from './drain.js'
+import {
+	connectionReset,
+	ContextFailed,
+	InvalidResponse,
+	isAdapterError,
+	ResponseSendFailed,
+} from './errors.js'
+import { writeResponseHead } from './response-head.js'
+import { toRequest } from './to-request.js'
 
 export {
-  ContextFailed,
-  InvalidHost,
-  InvalidRequestTarget,
-  InvalidResponse,
-  isAdapterError,
-  MethodNotSupported,
-  ResponseLengthMismatch,
-  ResponseSendFailed,
+	ContextFailed,
+	InvalidHost,
+	InvalidRequestTarget,
+	InvalidResponse,
+	isAdapterError,
+	MethodNotSupported,
+	ResponseLengthMismatch,
+	ResponseSendFailed,
 } from './errors.js'
 
 /**
@@ -51,9 +51,9 @@ function noop() {}
  * @returns {boolean}
  */
 function resolveHttps(https, req) {
-  if (typeof https === 'function') return https(req)
-  if (typeof https === 'boolean') return https
-  return Boolean(/** @type {{ encrypted?: boolean }} */ (req.socket).encrypted)
+	if (typeof https === 'function') return https(req)
+	if (typeof https === 'boolean') return https
+	return Boolean(/** @type {{ encrypted?: boolean }} */ (req.socket).encrypted)
 }
 
 /**
@@ -67,13 +67,13 @@ function resolveHttps(https, req) {
  * @returns {void}
  */
 function fail(res, err, status) {
-  if (res.writableEnded || res.destroyed) return
-  if (res.headersSent) {
-    res.destroy(err instanceof Error ? err : new Error(String(err)))
-    return
-  }
-  res.writeHead(status, { 'content-length': '0' })
-  res.end()
+	if (res.writableEnded || res.destroyed) return
+	if (res.headersSent) {
+		res.destroy(err instanceof Error ? err : new Error(String(err)))
+		return
+	}
+	res.writeHead(status, { 'content-length': '0' })
+	res.end()
 }
 
 /**
@@ -81,8 +81,8 @@ function fail(res, err, status) {
  * @returns {number}
  */
 function statusFor(err) {
-  if (isAdapterError(err)) return err.status
-  return err instanceof Error && err.name === 'TimeoutError' ? 504 : 500
+	if (isAdapterError(err)) return err.status
+	return err instanceof Error && err.name === 'TimeoutError' ? 504 : 500
 }
 
 /**
@@ -94,142 +94,142 @@ function statusFor(err) {
  * @returns {(req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void}
  */
 export function createAdapter(handler, options = {}) {
-  const onError = options.onError ?? noop
-  /**
-   * A throwing `onError` surfaces once as an uncaught exception, rather than
-   * being swallowed or becoming an unhandled rejection.
-   *
-   * @param {unknown} err
-   * @param {import('node:http').IncomingMessage} req
-   */
-  const report = (err, req) => {
-    try {
-      onError(err, req)
-    } catch (hookErr) {
-      process.nextTick(() => {
-        throw hookErr
-      })
-    }
-  }
+	const onError = options.onError ?? noop
+	/**
+	 * A throwing `onError` surfaces once as an uncaught exception, rather than
+	 * being swallowed or becoming an unhandled rejection.
+	 *
+	 * @param {unknown} err
+	 * @param {import('node:http').IncomingMessage} req
+	 */
+	const report = (err, req) => {
+		try {
+			onError(err, req)
+		} catch (hookErr) {
+			process.nextTick(() => {
+				throw hookErr
+			})
+		}
+	}
 
-  /**
-   * @param {import('node:http').IncomingMessage} req
-   * @param {import('node:http').ServerResponse} res
-   * @returns {void}
-   */
-  return function listener(req, res) {
-    const controller = new AbortController()
-    /** @type {import('node:stream').Readable | null} */
-    let piping = null
-    // Set once a request body stream exists; it then drains the body itself.
-    let bodyOwned = false
+	/**
+	 * @param {import('node:http').IncomingMessage} req
+	 * @param {import('node:http').ServerResponse} res
+	 * @returns {void}
+	 */
+	return function listener(req, res) {
+		const controller = new AbortController()
+		/** @type {import('node:stream').Readable | null} */
+		let piping = null
+		// Set once a request body stream exists; it then drains the body itself.
+		let bodyOwned = false
 
-    // Every other path (an early error, a GET that carries a body) must still
-    // be bounded by the drain limits, not left to Node's unlimited dump.
-    res.on('finish', () => {
-      if (!bodyOwned) drainRequest(req)
-    })
+		// Every other path (an early error, a GET that carries a body) must still
+		// be bounded by the drain limits, not left to Node's unlimited dump.
+		res.on('finish', () => {
+			if (!bodyOwned) drainRequest(req)
+		})
 
-    /**
-     * The disconnect itself is not reportable: the error the signal aborted
-     * with, or one the handler wrapped it in.
-     *
-     * @param {unknown} err
-     * @returns {boolean}
-     */
-    const isDisconnect = (err) => {
-      if (!controller.signal.aborted) return false
-      for (let e = err, depth = 0; e != null && depth < 10; depth++) {
-        if (e === controller.signal.reason) return true
-        e = /** @type {{ cause?: unknown }} */ (e).cause
-      }
-      return false
-    }
+		/**
+		 * The disconnect itself is not reportable: the error the signal aborted
+		 * with, or one the handler wrapped it in.
+		 *
+		 * @param {unknown} err
+		 * @returns {boolean}
+		 */
+		const isDisconnect = (err) => {
+			if (!controller.signal.aborted) return false
+			for (let e = err, depth = 0; e != null && depth < 10; depth++) {
+				if (e === controller.signal.reason) return true
+				e = /** @type {{ cause?: unknown }} */ (e).cause
+			}
+			return false
+		}
 
-    // A client disconnect at any stage (mid-upload included) closes `res`,
-    // with `req.errored` already set when Node raised an error.
-    res.on('close', () => {
-      if (res.writableFinished) return
-      // `res.errored` is set when the adapter destroyed the response itself
-      // (a failed body producer); a client disconnect leaves it null.
-      const reason = res.errored ?? req.errored ?? connectionReset()
-      controller.abort(reason)
-      // Cancels the web stream behind `Readable.fromWeb` with the same reason.
-      piping?.destroy(reason)
-    })
+		// A client disconnect at any stage (mid-upload included) closes `res`,
+		// with `req.errored` already set when Node raised an error.
+		res.on('close', () => {
+			if (res.writableFinished) return
+			// `res.errored` is set when the adapter destroyed the response itself
+			// (a failed body producer); a client disconnect leaves it null.
+			const reason = res.errored ?? req.errored ?? connectionReset()
+			controller.abort(reason)
+			// Cancels the web stream behind `Readable.fromWeb` with the same reason.
+			piping?.destroy(reason)
+		})
 
-    void run()
+		void run()
 
-    async function run() {
-      try {
-        const context = getContext()
-        const request = toRequest(
-          req,
-          res,
-          controller.signal,
-          resolveHttps(options.https, req),
-        )
-        bodyOwned = request.body !== null
-        const response = await handler(request, context)
-        if (!(response instanceof Response)) {
-          throw new InvalidResponse({ what: 'a value that is not a Response' })
-        }
-        // The client left, or `getContext` ended `res` itself.
-        if (res.destroyed || res.writableEnded) {
-          response.body?.cancel(controller.signal.reason).catch(noop)
-          return
-        }
-        const node = writeHead(response, request.method)
-        if (node) pipeBody(node)
-      } catch (err) {
-        fail(res, err, statusFor(err))
-        if (!isDisconnect(err)) report(err, req)
-      }
-    }
+		async function run() {
+			try {
+				const context = getContext()
+				const request = toRequest(
+					req,
+					res,
+					controller.signal,
+					resolveHttps(options.https, req),
+				)
+				bodyOwned = request.body !== null
+				const response = await handler(request, context)
+				if (!(response instanceof Response)) {
+					throw new InvalidResponse({ what: 'a value that is not a Response' })
+				}
+				// The client left, or `getContext` ended `res` itself.
+				if (res.destroyed || res.writableEnded) {
+					response.body?.cancel(controller.signal.reason).catch(noop)
+					return
+				}
+				const node = writeHead(response, request.method)
+				if (node) pipeBody(node)
+			} catch (err) {
+				fail(res, err, statusFor(err))
+				if (!isDisconnect(err)) report(err, req)
+			}
+		}
 
-    /** @returns {Ctx} */
-    function getContext() {
-      try {
-        return options.getContext
-          ? options.getContext(req, res)
-          : /** @type {Ctx} */ (undefined)
-      } catch (cause) {
-        throw new ContextFailed(undefined, { cause })
-      }
-    }
+		/** @returns {Ctx} */
+		function getContext() {
+			try {
+				return options.getContext
+					? options.getContext(req, res)
+					: /** @type {Ctx} */ (undefined)
+			} catch (cause) {
+				throw new ContextFailed(undefined, { cause })
+			}
+		}
 
-    /**
-     * @param {Response} response
-     * @param {string} method
-     */
-    function writeHead(response, method) {
-      try {
-        return writeResponseHead(res, response, method)
-      } catch (cause) {
-        if (isAdapterError(cause)) throw cause
-        throw new ResponseSendFailed(undefined, { cause })
-      }
-    }
+		/**
+		 * @param {Response} response
+		 * @param {string} method
+		 */
+		function writeHead(response, method) {
+			try {
+				return writeResponseHead(res, response, method)
+			} catch (cause) {
+				if (isAdapterError(cause)) throw cause
+				throw new ResponseSendFailed(undefined, { cause })
+			}
+		}
 
-    /** @param {import('node:stream').Readable} node */
-    function pipeBody(node) {
-      piping = node
-      node.on('error', (err) => {
-        if (!res.destroyed) res.destroy(err)
-        if (!isDisconnect(err)) report(err, req)
-      })
-      // `pipe`, not `pipeline`: the 'close' listener above already cancels the
-      // producer with the disconnect reason, which `pipeline` would replace with
-      // a generic premature-close error, and `pipe` is cheaper.
-      node.pipe(res)
-      // Headers only go out with the first chunk. Let one that is already
-      // available coalesce with them (cheaper), but do not let an SSE or
-      // long-poll response sit with no status line until its first event.
-      setImmediate(() => {
-        if (!node.readableDidRead && !res.writableEnded && !res.destroyed) {
-          res.flushHeaders()
-        }
-      })
-    }
-  }
+		/** @param {import('node:stream').Readable} node */
+		function pipeBody(node) {
+			piping = node
+			node.on('error', (err) => {
+				if (!res.destroyed) res.destroy(err)
+				if (!isDisconnect(err)) report(err, req)
+			})
+			// `pipe`, not `pipeline`: the 'close' listener above already cancels the
+			// producer with the disconnect reason, which `pipeline` would replace with
+			// a generic premature-close error, and `pipe` is cheaper.
+			node.pipe(res)
+			// Headers only go out with the first chunk. Let one that is already
+			// available coalesce with them (cheaper), but do not let an SSE or
+			// long-poll response sit with no status line until its first event.
+			setImmediate(() => {
+				if (!node.readableDidRead && !res.writableEnded && !res.destroyed) {
+					res.flushHeaders()
+				}
+			})
+		}
+	}
 }

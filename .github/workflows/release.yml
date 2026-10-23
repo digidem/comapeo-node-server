@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: nearform-actions/optic-release-automation-action@212ac6a8d5c859eb7683ddb3dbbbd52a6084f30c # v4.13.0
         with:
-          commit-message: "chore: release {version}"
+          commit-message: 'chore: release {version}'
           sync-semver-tags: false
           access: public
           # e.g. v3.0.0-pre.0
