@@ -72,6 +72,7 @@ npm install @comapeo/node-server
 
 ```js
 import http from 'node:http'
+
 import { createAdapter } from '@comapeo/node-server'
 
 const handler = async (request) => {
