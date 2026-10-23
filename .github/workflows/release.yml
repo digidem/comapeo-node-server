@@ -23,7 +23,7 @@ on:
 jobs:
   release:
     # Prereleases may run from any branch; everything else only from the
-    # default branch or when optic's own release PR is merged
+    # default branch, or when optic's own release PR is merged
     if: >-
       ${{
         (
