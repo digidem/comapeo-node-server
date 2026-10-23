@@ -9,7 +9,7 @@ npm test            # types, lint, unused (knip), unit tests
 npm run coverage    # unit tests with lcov + text coverage
 npm run check:pkg   # publint + attw on the packed tarball
 npm run format      # prettier
-npm run bench       # compare with @whatwg-node/server and @hono/node-server
+npm run bench       # compare with @whatwg-node/server and @hono/node-server (npm --prefix bench ci first)
 ```
 
 ## Conventions

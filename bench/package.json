@@ -1,0 +1,13 @@
+{
+	"name": "@comapeo/node-server-bench",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"bench": "node bench.mjs"
+	},
+	"dependencies": {
+		"@whatwg-node/server": "^0.13.1",
+		"hono-node-server-v1": "npm:@hono/node-server@^1.19.17",
+		"hono-node-server-v2": "npm:@hono/node-server@^2.1.5"
+	}
+}
