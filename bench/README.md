@@ -6,7 +6,11 @@ same range as `@whatwg-node/server` and `@hono/node-server`.
 
 ## Running
 
+The comparison adapters have their own `package.json` and lockfile here, so
+they stay out of the root dependency tree. Install them once:
+
 ```sh
+npm --prefix bench ci
 npm run bench                   # 3s per scenario, concurrency 50
 node bench/bench.mjs 5000 100   # custom duration (ms) and concurrency
 ```
@@ -29,8 +33,8 @@ second divided by the slowest in that scenario.
 
 ## Results
 
-Apple M2 Pro, versions as in `package-lock.json`. Your numbers will differ; the
-relative order is what matters.
+Apple M2 Pro, versions as in `bench/package-lock.json`. Your numbers will
+differ; the relative order is what matters.
 
 Node 24.21.0, 3000ms per scenario, concurrency 50
 
