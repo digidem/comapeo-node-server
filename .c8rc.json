@@ -1,5 +1,4 @@
 {
 	"all": true,
-	"include": ["src/**/*.js"],
-	"reporter": ["text", "lcovonly"]
+	"include": ["src/**/*.js"]
 }
