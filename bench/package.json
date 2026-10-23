@@ -7,7 +7,6 @@
 	},
 	"dependencies": {
 		"@whatwg-node/server": "^0.13.1",
-		"hono": "^4.13.13",
 		"hono-node-server-v1": "npm:@hono/node-server@^1.19.17",
 		"hono-node-server-v2": "npm:@hono/node-server@^2.1.5"
 	}
