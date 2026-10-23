@@ -51,7 +51,7 @@
     "npm-run-all2": "^8.0.4",
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
-    "typescript": "^5.4.0"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "custom-error-creator": "^1.4.0"
